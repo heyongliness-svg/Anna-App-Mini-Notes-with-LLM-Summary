@@ -1,0 +1,73 @@
+name: Release Executa binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            platform: darwin-arm64
+            binary: mini-notes-summarizer
+          - runner: macos-14
+            platform: darwin-x86_64
+            binary: mini-notes-summarizer
+          - runner: windows-latest
+            platform: windows-x86_64
+            binary: mini-notes-summarizer.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Package current platform
+        run: node scripts/pack-binary.mjs --platform ${{ matrix.platform }}
+      - name: Make the Unix binary executable
+        if: runner.os == 'macOS'
+        run: chmod +x "dist/stage/${{ matrix.platform }}/${{ matrix.binary }}"
+      - name: Smoke test describe and sampling
+        run: node scripts/rpc-smoke.mjs "dist/stage/${{ matrix.platform }}/${{ matrix.binary }}"
+      - name: Upload packaged archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: executa-${{ matrix.platform }}
+          path: dist/mini-notes-summarizer-*
+          if-no-files-found: error
+
+  release:
+    name: Publish release assets
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: executa-*
+          path: release-assets
+          merge-multiple: true
+      - name: Require all three platform archives
+        run: |
+          find release-assets -type f -print
+          count=$(find release-assets -type f \( -name '*-darwin-arm64.tar.gz' -o -name '*-darwin-x86_64.tar.gz' -o -name '*-windows-x86_64.zip' \) | wc -l)
+          test "$count" -eq 3
+      - name: Upload GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('build-{0}', github.run_id) }}
+          files: release-assets/*
+          fail_on_unmatched_files: true

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Notes with LLM Summary</title>
+    <script>
+      const hostParams = new URLSearchParams(location.search);
+      const hostTheme = hostParams.get("theme") === "dark" ? "dark" : "light";
+      document.documentElement.dataset.theme = hostTheme;
+      document.documentElement.style.colorScheme = hostTheme;
+      document.documentElement.lang = (hostParams.get("lang") || "").toLowerCase().startsWith("zh")
+        ? "zh-CN"
+        : "en";
+    </script>
+  </head>
+  <body>
+    <main id="app">Mini Notes with LLM Summary</main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

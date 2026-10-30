@@ -1,0 +1,21 @@
+{
+  "name": "mini-notes",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "validate": "anna-app validate --strict",
+    "dev": "anna-app dev --no-llm",
+    "test:rpc": "node scripts/rpc-smoke.mjs",
+    "executa:sampling": "node scripts/executa-sampling.mjs",
+    "pack": "node scripts/pack-binary.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0"
+  }
+}

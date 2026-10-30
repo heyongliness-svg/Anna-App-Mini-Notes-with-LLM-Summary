@@ -1,0 +1,38 @@
+{
+  "schema": 2,
+  "required_executas": [
+    {
+      "tool_id": "mini-notes-summarizer",
+      "min_version": "0.1.0"
+    }
+  ],
+  "permissions": ["storage.read", "storage.write", "tools.invoke", "llm.complete"],
+  "host_capabilities": ["llm.sample"],
+  "ui": {
+    "bundle": {
+      "format": "static-spa",
+      "entry": "index.html"
+    },
+    "form_factors": ["desktop", "mobile"],
+    "views": [
+      {
+        "name": "main",
+        "title": "Mini Notes with LLM Summary",
+        "default": true,
+        "min_size": { "w": 320, "h": 480 },
+        "default_size": { "w": 800, "h": 560 },
+        "max_size": { "w": 1280, "h": 800 },
+        "single_instance": true
+      }
+    ],
+    "host_api": {
+      "storage": ["get", "set"],
+      "tools": ["required:mini-notes-summarizer"],
+      "llm": ["complete"]
+    }
+  },
+  "dev": {
+    "user_id": 1,
+    "seed_storage": {}
+  }
+}
